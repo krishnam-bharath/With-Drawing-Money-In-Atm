@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define a structure for account details
+struct Account {
+    char accountNumber[20];
+    char pin[5];
+    char holderName[50];
+    double balance;
+};
+
+// Simulated database of accounts
+struct Account accounts[] = {
+    {"1234567890", "2255", "narasimha", 1000.00},
+    {"9876543210", "5678", "siva", 1500.00},
+    // Add more accounts as needed
+};
+
+int numAccounts = sizeof(accounts) / sizeof(accounts[0]);
+
+// Function to display account balance
+void displayBalance(struct Account account) {
+    printf("Account Holder: %s\n", account.holderName);
+    printf("Account Number: %s\n", account.accountNumber);
+    printf("Balance: ₹%.2f\n", account.balance);
+}
+
+// Function to withdraw money
+void withdraw(struct Account *account, double amount) {
+    if (amount > 0 && amount <= account->balance) {
+        account->balance -= amount;
+        printf("Withdrawn ₹%.2f\n", amount);
+        displayBalance(*account);
+    } else {
+        printf("Invalid amount or insufficient balance.\n");
+    }
+}
+
+// Function to validate account number and PIN
+int validateAccount(char accountNumber[], char pin[]) {
+    for (int i = 0; i < numAccounts; i++) {
+        if (strcmp(accountNumber, accounts[i].accountNumber) == 0) {
+            if (strcmp(pin, accounts[i].pin) == 0) {
+                return i; // Return the index of the authenticated account
+            }
+        }
+    }
+    return -1; // Return -1 if authentication fails
+}
+
+int main() {
+    char inputAccountNumber[20];
+    char inputPin[5];
+    int authenticatedAccountIndex = -1;
+
+    printf("Welcome to the ATM\n");
+
+    // User authentication
+    do {
+        printf("Enter your account number: ");
+        scanf("%s", inputAccountNumber);
+        printf("Enter your PIN: ");
+        scanf("%s", inputPin);
+
+        authenticatedAccountIndex = validateAccount(inputAccountNumber, inputPin);
+
+        if (authenticatedAccountIndex == -1) {
+            printf("Authentication failed. Please try again.\n");
+        }
+    } while (authenticatedAccountIndex == -1);
+
+    struct Account *authenticatedAccount = &accounts[authenticatedAccountIndex];
+
+    int option;
+    double amount;
+
+    // ATM menu
+    do {
+        printf("\nOptions:\n");
+        printf("1. Display Balance\n");
+        printf("2. Withdraw\n");
+        printf("3. Exit\n");
+        printf("Select an option: ");
+        scanf("%d", &option);
+
+        switch (option) {
+            case 1:
+                displayBalance(*authenticatedAccount);
+                break;
+            case 2:
+                printf("Enter the amount to withdraw: ₹");
+                scanf("%lf", &amount);
+                withdraw(authenticatedAccount, amount);
+                break;
+            case 3:
+                printf("Thank you for using the ATM. Goodbye!\n");
+                break;
+            default:
+                printf("Invalid option. Please try again.\n");
+        }
+    } while (option != 3);
+
+    return 0;
+}
+
+
